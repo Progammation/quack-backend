@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { PrismaService } from './database/prisma.service';
-import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
-  imports: [UsersModule],
+  imports: [AuthModule, PassportModule.register({ session: true })],
   controllers: [],
   providers: [PrismaService],
 })
