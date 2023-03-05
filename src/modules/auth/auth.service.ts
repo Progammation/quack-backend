@@ -1,25 +1,30 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../database/prisma.service';
 import { UserDto } from '../../dto/user.dto';
-import { v4 as uuid } from 'uuid';
+import { JwtService } from '@nestjs/jwt';
+
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-  async findUserById(id: number): Promise<UserDto | null> {
-    const user = await this.prisma.user.findFirst({ where: { id } });
-    return user ? user : null;
-  }
-
-  async findUserByEmail(email: string): Promise<UserDto | null> {
-    const user = await this.prisma.user.findFirst({ where: { email } });
-    return user ? user : null;
-  }
-
-  async createUser(user: UserDto): Promise<UserDto> {
-    console.log(user);
-    return this.prisma.user.create({
-      data: user,
+  async login(user: UserDto) {
+    const userExists = await this.prisma.user.findFirst({
+      where: { email: user.email },
     });
+
+    let newUser = userExists;
+    if (!userExists) {
+      newUser = await this.prisma.user.create({
+        data: user,
+      });
+    }
+
+    return {
+      user: newUser,
+      accessToken: this.jwtService.sign({ id: newUser.id }),
+    };
   }
 }
