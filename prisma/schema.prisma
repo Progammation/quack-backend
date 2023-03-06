@@ -14,4 +14,43 @@ model User {
   profilePicture String
   createdAt      DateTime @default(now())
   updatedAt      DateTime @default(now()) @updatedAt
+  collections    Collection[]
+}
+
+model Collection {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String   @unique
+  bio       String?
+  userId    Int
+  links     Link[]
+  views     ViewCollection[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model ViewCollection {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  collectionId Int
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+}
+
+model Link {
+  id        Int      @id @default(autoincrement())
+  name      String
+  url       String
+  collectionId Int
+  views     ViewLink[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+  collection Collection @relation(fields: [collectionId], references: [id] , onDelete: Cascade)
+}
+
+model ViewLink {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  linkId Int
+  link Link @relation(fields: [linkId], references: [id], onDelete: Cascade)
 }
