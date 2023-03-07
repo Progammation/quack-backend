@@ -13,9 +13,9 @@ export class CollectionsService {
     });
   }
 
-  async findAll(userId: number) {
+  async findAll(username: string) {
     return this.prismaService.collection.findMany({
-      where: { userId },
+      where: { user: { username } },
       include: {
         links: {
           select: {
@@ -30,7 +30,7 @@ export class CollectionsService {
         },
         _count: { select: { views: true } },
       },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
     });
   }
 
@@ -40,9 +40,9 @@ export class CollectionsService {
     });
   }
 
-  async findOneBySlug({ slug, userId }: { slug: string; userId: number }) {
+  async findOneBySlug({ slug, username }: { slug: string; username: string }) {
     return this.prismaService.collection.findFirst({
-      where: { slug, userId },
+      where: { slug, user: { username } },
       include: {
         links: {
           select: {
@@ -75,6 +75,12 @@ export class CollectionsService {
   async addView(collectionId: number) {
     return this.prismaService.viewCollection.create({
       data: { collectionId },
+    });
+  }
+
+  async findUserByUsername(username: string) {
+    return this.prismaService.user.findFirst({
+      where: { username },
     });
   }
 }
