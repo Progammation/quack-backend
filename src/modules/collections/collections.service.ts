@@ -13,25 +13,50 @@ export class CollectionsService {
     });
   }
 
-  async findAll(userId: number) {
+  async findAll(username: string) {
     return this.prismaService.collection.findMany({
-      where: { userId },
-      include: { _count: { select: { views: true } } },
-      orderBy: { createdAt: 'desc' },
+      where: { user: { username } },
+      include: {
+        links: {
+          select: {
+            id: true,
+            name: true,
+            url: true,
+            createdAt: true,
+            updatedAt: true,
+            _count: { select: { views: true } },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+        _count: { select: { views: true } },
+      },
+      orderBy: { createdAt: 'asc' },
     });
   }
 
-  async findOneById({ id, userId }: { id: number; userId: number }) {
+  async findOneById({ id, username }: { id: number; username: string }) {
     return this.prismaService.collection.findFirst({
-      where: { id, userId },
-      include: { _count: { select: { views: true } } },
+      where: { id, user: { username } },
     });
   }
 
-  async findOneBySlug({ slug, userId }: { slug: string; userId: number }) {
+  async findOneBySlug({ slug, username }: { slug: string; username: string }) {
     return this.prismaService.collection.findFirst({
-      where: { slug, userId },
-      include: { _count: { select: { views: true } } },
+      where: { slug, user: { username } },
+      include: {
+        links: {
+          select: {
+            id: true,
+            name: true,
+            url: true,
+            createdAt: true,
+            updatedAt: true,
+            _count: { select: { views: true } },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+        _count: { select: { views: true } },
+      },
     });
   }
 
@@ -50,6 +75,12 @@ export class CollectionsService {
   async addView(collectionId: number) {
     return this.prismaService.viewCollection.create({
       data: { collectionId },
+    });
+  }
+
+  async findUserByUsername(username: string) {
+    return this.prismaService.user.findFirst({
+      where: { username },
     });
   }
 }

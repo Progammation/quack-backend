@@ -18,18 +18,19 @@ import { CollectionsService } from '../collections/collections.service';
 import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 
-@Controller('collections/:collectionId/links')
-@UseGuards(JwtAuthGuard)
+@Controller(':username/collections/:collectionId/links')
 export class LinksController {
   constructor(
     private readonly linksService: LinksService,
     private readonly collectionsService: CollectionsService,
   ) {}
-
-  async collectionExits(collectionId: number, userId: number) {
+  async usernameExists(username: string) {
+    return this.collectionsService.findUserByUsername(username);
+  }
+  async collectionExits(collectionId: number, username: string) {
     return this.collectionsService.findOneById({
       id: collectionId,
-      userId,
+      username,
     });
   }
 
@@ -41,14 +42,23 @@ export class LinksController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async create(
+    @Param('username') username: string,
     @Param('collectionId') collectionId: string,
     @Body() createLinkDto: CreateLinkDto,
     @Req() req: Request,
   ) {
+    const usernameExists = await this.usernameExists(username);
+    if (!usernameExists)
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    if (req.user['id'] !== usernameExists.id)
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+
     const collectionExists = await this.collectionExits(
       +collectionId,
-      req.user['id'],
+      username,
     );
     if (!collectionExists)
       throw new HttpException(
@@ -65,12 +75,16 @@ export class LinksController {
 
   @Get()
   async findAll(
+    @Param('username') username: string,
     @Param('collectionId') collectionId: string,
-    @Req() req: Request,
   ) {
+    const usernameExists = await this.usernameExists(username);
+    if (!usernameExists)
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
     const collectionExists = await this.collectionExits(
       +collectionId,
-      req.user['id'],
+      username,
     );
     if (!collectionExists)
       throw new HttpException(
@@ -83,13 +97,17 @@ export class LinksController {
 
   @Get(':id')
   async findOne(
+    @Param('username') username: string,
     @Param('collectionId') collectionId: string,
     @Param('id') id: string,
-    @Req() req: Request,
   ) {
+    const usernameExists = await this.usernameExists(username);
+    if (!usernameExists)
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
     const collectionExists = await this.collectionExits(
       +collectionId,
-      req.user['id'],
+      username,
     );
     if (!collectionExists)
       throw new HttpException(
@@ -105,15 +123,24 @@ export class LinksController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
+    @Param('username') username: string,
     @Param('collectionId') collectionId: string,
     @Param('id') id: string,
     @Req() req: Request,
     @Body() updateLinkDto: UpdateLinkDto,
   ) {
+    const usernameExists = await this.usernameExists(username);
+    if (!usernameExists)
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    if (req.user['id'] !== usernameExists.id)
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+
     const collectionExists = await this.collectionExits(
       +collectionId,
-      req.user['id'],
+      username,
     );
     if (!collectionExists)
       throw new HttpException(
@@ -133,14 +160,23 @@ export class LinksController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   async remove(
+    @Param('username') username: string,
     @Param('collectionId') collectionId: string,
     @Param('id') id: string,
     @Req() req: Request,
   ) {
+    const usernameExists = await this.usernameExists(username);
+    if (!usernameExists)
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    if (req.user['id'] !== usernameExists.id)
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+
     const collectionExists = await this.collectionExits(
       +collectionId,
-      req.user['id'],
+      username,
     );
     if (!collectionExists)
       throw new HttpException(
@@ -157,13 +193,13 @@ export class LinksController {
 
   @Get(':id/clicked')
   async clicked(
+    @Param('username') username: string,
     @Param('collectionId') collectionId: string,
     @Param('id') id: string,
-    @Req() req: Request,
   ) {
     const collectionExists = await this.collectionExits(
       +collectionId,
-      req.user['id'],
+      username,
     );
     if (!collectionExists)
       throw new HttpException(
