@@ -34,9 +34,9 @@ export class CollectionsService {
     });
   }
 
-  async findOneById({ id, userId }: { id: number; userId: number }) {
+  async findOneById({ id, username }: { id: number; username: string }) {
     return this.prismaService.collection.findFirst({
-      where: { id, userId },
+      where: { id, user: { username } },
     });
   }
 

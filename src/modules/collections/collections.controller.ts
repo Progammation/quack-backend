@@ -106,7 +106,7 @@ export class CollectionsController {
 
     const collection = await this.collectionsService.findOneById({
       id: +id,
-      userId: req.user['id'],
+      username,
     });
     if (!collection)
       throw new HttpException('Collection not found', HttpStatus.NOT_FOUND);
@@ -149,7 +149,7 @@ export class CollectionsController {
 
     const collection = await this.collectionsService.findOneById({
       id: +id,
-      userId: req.user['id'],
+      username,
     });
     if (!collection)
       throw new HttpException('Collection not found', HttpStatus.NOT_FOUND);
