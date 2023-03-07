@@ -16,7 +16,20 @@ export class CollectionsService {
   async findAll(userId: number) {
     return this.prismaService.collection.findMany({
       where: { userId },
-      include: { _count: { select: { views: true } } },
+      include: {
+        links: {
+          select: {
+            id: true,
+            name: true,
+            url: true,
+            createdAt: true,
+            updatedAt: true,
+            _count: { select: { views: true } },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+        _count: { select: { views: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
   }
@@ -24,14 +37,26 @@ export class CollectionsService {
   async findOneById({ id, userId }: { id: number; userId: number }) {
     return this.prismaService.collection.findFirst({
       where: { id, userId },
-      include: { _count: { select: { views: true } } },
     });
   }
 
   async findOneBySlug({ slug, userId }: { slug: string; userId: number }) {
     return this.prismaService.collection.findFirst({
       where: { slug, userId },
-      include: { _count: { select: { views: true } } },
+      include: {
+        links: {
+          select: {
+            id: true,
+            name: true,
+            url: true,
+            createdAt: true,
+            updatedAt: true,
+            _count: { select: { views: true } },
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+        _count: { select: { views: true } },
+      },
     });
   }
 
