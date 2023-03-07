@@ -154,4 +154,27 @@ export class LinksController {
 
     return this.linksService.remove(+id);
   }
+
+  @Get(':id/clicked')
+  async clicked(
+    @Param('collectionId') collectionId: string,
+    @Param('id') id: string,
+    @Req() req: Request,
+  ) {
+    const collectionExists = await this.collectionExits(
+      +collectionId,
+      req.user['id'],
+    );
+    if (!collectionExists)
+      throw new HttpException(
+        'Collection does not exist',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const linkExists = await this.linkExists(+id, +collectionId);
+    if (!linkExists)
+      throw new HttpException('Link does not exist', HttpStatus.BAD_REQUEST);
+
+    return this.linksService.clicked(+id);
+  }
 }

@@ -39,4 +39,10 @@ export class LinksService {
       where: { id },
     });
   }
+
+  clicked(id: number) {
+    return this.prismaService.viewLink.create({
+      data: { linkId: id },
+    });
+  }
 }
