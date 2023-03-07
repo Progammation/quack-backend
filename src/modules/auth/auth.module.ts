@@ -18,7 +18,6 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     GoogleStrategy,
     JwtStrategy,
     PrismaService,
-    AuthService,
     {
       provide: 'AuthService',
       useClass: AuthService,
