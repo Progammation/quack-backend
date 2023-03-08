@@ -58,7 +58,7 @@ export class CollectionsService {
   }
 
   async findCollectionsSharedWithUser(username: string, userId: number) {
-    return this.prismaService.privateCollectionSharedWith.findMany({
+    return this.prismaService.collectionSharedWith.findMany({
       where: {
         collection: { user: { username } },
         sharedWithId: userId,
@@ -111,7 +111,7 @@ export class CollectionsService {
   }
 
   findSharedCollections(userId: number) {
-    return this.prismaService.privateCollectionSharedWith.findMany({
+    return this.prismaService.collectionSharedWith.findMany({
       where: { sharedWithId: userId, collection: { visibility: 'PRIVATE' } },
       select: {
         collection: {
@@ -154,14 +154,14 @@ export class CollectionsService {
   }
 
   findUsersAlreadySharedWith(id: number) {
-    return this.prismaService.privateCollectionSharedWith.findMany({
+    return this.prismaService.collectionSharedWith.findMany({
       where: { collectionId: id },
       select: { sharedWithId: true },
     });
   }
 
   shareCollectionWith(id: number, ids: number[]) {
-    return this.prismaService.privateCollectionSharedWith.createMany({
+    return this.prismaService.collectionSharedWith.createMany({
       data: ids.map((userId) => ({
         collectionId: id,
         sharedWithId: userId,
@@ -170,7 +170,7 @@ export class CollectionsService {
   }
 
   async unShareCollectionWith(id: number, ids: number[]) {
-    return this.prismaService.privateCollectionSharedWith.deleteMany({
+    return this.prismaService.collectionSharedWith.deleteMany({
       where: {
         collectionId: id,
         sharedWithId: { in: ids },

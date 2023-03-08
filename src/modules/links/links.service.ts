@@ -47,7 +47,7 @@ export class LinksService {
   }
 
   isCollectionSharedWithUser(collectionId: number, userId: number) {
-    return this.prismaService.privateCollectionSharedWith.findFirst({
+    return this.prismaService.collectionSharedWith.findFirst({
       where: { collectionId, sharedWithId: userId },
     });
   }
