@@ -110,6 +110,37 @@ export class CollectionsService {
     });
   }
 
+  findSharedCollections(userId: number) {
+    return this.prismaService.privateCollectionSharedWith.findMany({
+      where: { sharedWithId: userId, collection: { visibility: 'PRIVATE' } },
+      select: {
+        collection: {
+          select: {
+            id: true,
+            name: true,
+            bio: true,
+            slug: true,
+            visibility: true,
+            createdAt: true,
+            updatedAt: true,
+            links: {
+              select: {
+                id: true,
+                name: true,
+                url: true,
+                createdAt: true,
+                updatedAt: true,
+                _count: { select: { views: true } },
+              },
+              orderBy: { createdAt: 'asc' },
+            },
+            _count: { select: { views: true } },
+          },
+        },
+      },
+    });
+  }
+
   async findUserByUsername(username: string) {
     return this.prismaService.user.findFirst({
       where: { username },

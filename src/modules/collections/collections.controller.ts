@@ -97,6 +97,22 @@ export class CollectionsController {
     });
   }
 
+  @Get('shared')
+  @UseGuards(JwtAuthGuard)
+  async findSharedCollections(
+    @Param('username') username: string,
+    @Req() req: Request,
+  ) {
+    const usernameExists = await this.usernameExists(username);
+    if (!usernameExists)
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
+    if (req.user['id'] !== usernameExists.id)
+      throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+
+    return this.collectionsService.findSharedCollections(req.user['id']);
+  }
+
   @Get(':slug')
   @UseGuards(OptionalJwtGuard)
   async findOne(
