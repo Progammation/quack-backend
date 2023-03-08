@@ -17,6 +17,7 @@ import { UpdateLinkDto } from './dto/update-link.dto';
 import { CollectionsService } from '../collections/collections.service';
 import { Request } from 'express';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+import { OptionalJwtGuard } from '../auth/guards/optional-jwt.guard';
 
 @Controller(':username/collections/:collectionId/links')
 export class LinksController {
@@ -74,9 +75,11 @@ export class LinksController {
   }
 
   @Get()
+  @UseGuards(OptionalJwtGuard)
   async findAll(
     @Param('username') username: string,
     @Param('collectionId') collectionId: string,
+    @Req() req: Request,
   ) {
     const usernameExists = await this.usernameExists(username);
     if (!usernameExists)
@@ -91,15 +94,31 @@ export class LinksController {
         'Collection does not exist',
         HttpStatus.BAD_REQUEST,
       );
+
+    if (collectionExists.visibility === 'PRIVATE') {
+      if (!req.user)
+        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+      else if (req.user['id'] !== usernameExists.id) {
+        const isCollectionSharedWithUser =
+          await this.linksService.isCollectionSharedWithUser(
+            +collectionId,
+            req.user['id'],
+          );
+        if (!isCollectionSharedWithUser)
+          throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+      }
+    }
 
     return this.linksService.findAll(+collectionId);
   }
 
   @Get(':id')
+  @UseGuards(OptionalJwtGuard)
   async findOne(
     @Param('username') username: string,
     @Param('collectionId') collectionId: string,
     @Param('id') id: string,
+    @Req() req: Request,
   ) {
     const usernameExists = await this.usernameExists(username);
     if (!usernameExists)
@@ -114,6 +133,20 @@ export class LinksController {
         'Collection does not exist',
         HttpStatus.BAD_REQUEST,
       );
+
+    if (collectionExists.visibility === 'PRIVATE') {
+      if (!req.user)
+        throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+      else if (req.user['id'] !== usernameExists.id) {
+        const isCollectionSharedWithUser =
+          await this.linksService.isCollectionSharedWithUser(
+            +collectionId,
+            req.user['id'],
+          );
+        if (!isCollectionSharedWithUser)
+          throw new HttpException('Unauthorized', HttpStatus.UNAUTHORIZED);
+      }
+    }
 
     const linkExists = await this.linkExists(+id, +collectionId);
     if (!linkExists)
@@ -191,12 +224,18 @@ export class LinksController {
     return this.linksService.remove(+id);
   }
 
-  @Get(':id/clicked')
+  @Post(':id/clicked')
+  @UseGuards(OptionalJwtGuard)
   async clicked(
     @Param('username') username: string,
     @Param('collectionId') collectionId: string,
     @Param('id') id: string,
+    @Req() req: Request,
   ) {
+    const usernameExists = await this.usernameExists(username);
+    if (!usernameExists)
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+
     const collectionExists = await this.collectionExits(
       +collectionId,
       username,
@@ -206,6 +245,20 @@ export class LinksController {
         'Collection does not exist',
         HttpStatus.BAD_REQUEST,
       );
+
+    if (collectionExists.visibility === 'PRIVATE') {
+      if (!req.user)
+        throw new HttpException('Unauthorized1', HttpStatus.UNAUTHORIZED);
+      else if (req.user['id'] !== usernameExists.id) {
+        const isCollectionSharedWithUser =
+          await this.linksService.isCollectionSharedWithUser(
+            +collectionId,
+            req.user['id'],
+          );
+        if (!isCollectionSharedWithUser)
+          throw new HttpException('Unauthorized2', HttpStatus.UNAUTHORIZED);
+      }
+    }
 
     const linkExists = await this.linkExists(+id, +collectionId);
     if (!linkExists)

@@ -63,21 +63,6 @@ export class CollectionsService {
         collection: { user: { username } },
         sharedWithId: userId,
       },
-      // include: {
-      //   links: {
-      //     select: {
-      //       id: true,
-      //       name: true,
-      //       url: true,
-      //       createdAt: true,
-      //       updatedAt: true,
-      //       _count: { select: { views: true } },
-      //     },
-      //     orderBy: { createdAt: 'asc' },
-      //   },
-      //   _count: { select: { views: true } },
-      // },
-      // orderBy: { createdAt: 'asc' },
     });
   }
 
