@@ -4,6 +4,8 @@ import {
   IsString,
   MaxLength,
   MinLength,
+  IsIn,
+  IsUppercase,
 } from 'class-validator';
 
 export class CreateCollectionDto {
@@ -25,4 +27,9 @@ export class CreateCollectionDto {
 
   @IsOptional()
   readonly userId: number;
+
+  @IsOptional()
+  @IsIn(['PUBLIC', 'PRIVATE', 'UNLISTED'])
+  @IsUppercase()
+  readonly visibility: 'PUBLIC' | 'PRIVATE' | 'UNLISTED';
 }
