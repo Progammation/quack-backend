@@ -24,6 +24,27 @@ export class CollectionsService {
             url: true,
             createdAt: true,
             updatedAt: true,
+          },
+          orderBy: { createdAt: 'asc' },
+        },
+      },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  async findAllWithViews(username: string) {
+    return this.prismaService.collection.findMany({
+      where: {
+        user: { username },
+      },
+      include: {
+        links: {
+          select: {
+            id: true,
+            name: true,
+            url: true,
+            createdAt: true,
+            updatedAt: true,
             _count: { select: { views: true } },
           },
           orderBy: { createdAt: 'asc' },
@@ -47,13 +68,10 @@ export class CollectionsService {
             url: true,
             createdAt: true,
             updatedAt: true,
-            _count: { select: { views: true } },
           },
           orderBy: { createdAt: 'asc' },
         },
-        _count: { select: { views: true } },
       },
-      orderBy: { createdAt: 'asc' },
     });
   }
 
@@ -72,7 +90,13 @@ export class CollectionsService {
     });
   }
 
-  async findOneBySlug({ slug, username }: { slug: string; username: string }) {
+  async findOneBySlugWithView({
+    slug,
+    username,
+  }: {
+    slug: string;
+    username: string;
+  }) {
     return this.prismaService.collection.findFirst({
       where: { slug, user: { username } },
       include: {
@@ -88,6 +112,24 @@ export class CollectionsService {
           orderBy: { createdAt: 'asc' },
         },
         _count: { select: { views: true } },
+      },
+    });
+  }
+
+  async findOneBySlug({ slug, username }: { slug: string; username: string }) {
+    return this.prismaService.collection.findFirst({
+      where: { slug, user: { username } },
+      include: {
+        links: {
+          select: {
+            id: true,
+            name: true,
+            url: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+          orderBy: { createdAt: 'asc' },
+        },
       },
     });
   }
@@ -130,11 +172,9 @@ export class CollectionsService {
                 url: true,
                 createdAt: true,
                 updatedAt: true,
-                _count: { select: { views: true } },
               },
               orderBy: { createdAt: 'asc' },
             },
-            _count: { select: { views: true } },
           },
         },
       },

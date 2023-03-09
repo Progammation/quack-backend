@@ -36,7 +36,7 @@ export class LinksController {
   }
 
   async linkExists(linkId: number, collectionId: number) {
-    return this.linksService.findOne({
+    return this.linksService.findOneWithViews({
       id: linkId,
       collectionId: collectionId,
     });
@@ -109,7 +109,10 @@ export class LinksController {
       }
     }
 
-    return this.linksService.findAll(+collectionId);
+    if (!req.user || req.user['id'] !== usernameExists.id)
+      return this.linksService.findAll(+collectionId);
+
+    return this.linksService.findAllWithViews(+collectionId);
   }
 
   @Get(':id')
@@ -151,6 +154,12 @@ export class LinksController {
     const linkExists = await this.linkExists(+id, +collectionId);
     if (!linkExists)
       throw new HttpException('Link does not exist', HttpStatus.BAD_REQUEST);
+
+    if (!req.user || req.user['id'] !== usernameExists.id)
+      return this.linksService.findOne({
+        id: +id,
+        collectionId: +collectionId,
+      });
 
     return linkExists;
   }

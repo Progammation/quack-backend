@@ -15,12 +15,31 @@ export class LinksService {
   findAll(collectionId: number) {
     return this.prismaService.link.findMany({
       where: { collectionId },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
+  findAllWithViews(collectionId: number) {
+    return this.prismaService.link.findMany({
+      where: { collectionId },
       include: { _count: { select: { views: true } } },
       orderBy: { createdAt: 'asc' },
     });
   }
 
   async findOne({ id, collectionId }: { id: number; collectionId: number }) {
+    return this.prismaService.link.findFirst({
+      where: { id, collectionId },
+    });
+  }
+
+  async findOneWithViews({
+    id,
+    collectionId,
+  }: {
+    id: number;
+    collectionId: number;
+  }) {
     return this.prismaService.link.findFirst({
       where: { id, collectionId },
       include: { _count: { select: { views: true } } },

@@ -75,7 +75,7 @@ export class CollectionsController {
 
     if (!req.user) return this.collectionsService.findAllPublic(username);
     else if (req.user['id'] === usernameExists.id)
-      return this.collectionsService.findAll(username);
+      return this.collectionsService.findAllWithViews(username);
 
     const collectionsSharedWithUser =
       await this.collectionsService.findCollectionsSharedWithUser(
@@ -124,7 +124,7 @@ export class CollectionsController {
     if (!usernameExists)
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
 
-    const collection = await this.collectionsService.findOneBySlug({
+    const collection = await this.collectionsService.findOneBySlugWithView({
       slug,
       username,
     });
@@ -149,6 +149,9 @@ export class CollectionsController {
     }
 
     await this.collectionsService.addView(collection.id);
+
+    if (!req.user || req.user['id'] !== usernameExists.id)
+      return this.collectionsService.findOneBySlug({ slug, username });
 
     return collection;
   }
