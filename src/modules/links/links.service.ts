@@ -41,8 +41,8 @@ export class LinksService {
   }
 
   clicked(id: number) {
-    return this.prismaService.viewLink.create({
-      data: { linkId: id },
+    return this.prismaService.view.create({
+      data: { viewLinks: { create: { linkId: id } } },
     });
   }
 

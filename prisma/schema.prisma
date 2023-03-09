@@ -1,39 +1,40 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["ReferentialIntegrity"]
 }
+
 datasource db {
-  provider = "mysql"
-  url = env("DATABASE_URL")
+  provider          = "mysql"
+  url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
-  relationMode = "prisma"
+  relationMode      = "prisma"
 }
 
 model User {
-  id                Int                          @id @default(autoincrement())
-  username          String                       @unique
+  id                Int                    @id @default(autoincrement())
+  username          String                 @unique
   name              String
-  email             String                       @unique
+  email             String                 @unique
   profilePicture    String
-  createdAt         DateTime                     @default(now())
-  updatedAt         DateTime                     @default(now()) @updatedAt
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @default(now()) @updatedAt
   collections       Collection[]
   sharedCollections CollectionSharedWith[]
 }
 
 model Collection {
-  id         Int                          @id @default(autoincrement())
+  id         Int                    @id @default(autoincrement())
   name       String
-  slug       String                       @unique
+  slug       String                 @unique
   bio        String?
-  visibility CollectionVisibility         @default(PUBLIC) // PUBLIC, PRIVATE, PROTECTED
+  visibility CollectionVisibility   @default(PUBLIC) // PUBLIC, PRIVATE, PROTECTED
   userId     Int
   links      Link[]
   views      ViewCollection[]
   sharedWith CollectionSharedWith[]
-  createdAt  DateTime                     @default(now())
-  updatedAt  DateTime                     @default(now()) @updatedAt
-  user       User                         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @default(now()) @updatedAt
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 enum CollectionVisibility {
@@ -52,13 +53,6 @@ model CollectionSharedWith {
   sharedWith   User       @relation(fields: [sharedWithId], references: [id], onDelete: Cascade)
 }
 
-model ViewCollection {
-  id           Int        @id @default(autoincrement())
-  createdAt    DateTime   @default(now())
-  collectionId Int
-  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-}
-
 model Link {
   id           Int        @id @default(autoincrement())
   name         String
@@ -70,9 +64,25 @@ model Link {
   collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
 }
 
+model View {
+  id              Int              @id @default(autoincrement())
+  createdAt       DateTime         @default(now())
+  viewLinks       ViewLink[]
+  viewCollections ViewCollection[]
+}
+
 model ViewLink {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  linkId    Int
-  link      Link     @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  id     Int  @id @default(autoincrement())
+  viewId Int
+  linkId Int
+  link   Link @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  view   View @relation(fields: [viewId], references: [id], onDelete: Cascade)
+}
+
+model ViewCollection {
+  id           Int        @id @default(autoincrement())
+  viewId       Int
+  collectionId Int
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  view         View       @relation(fields: [viewId], references: [id], onDelete: Cascade)
 }

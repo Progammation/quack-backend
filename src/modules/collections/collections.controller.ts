@@ -148,7 +148,8 @@ export class CollectionsController {
       }
     }
 
-    this.collectionsService.addView(collection.id);
+    await this.collectionsService.addView(collection.id);
+
     return collection;
   }
 

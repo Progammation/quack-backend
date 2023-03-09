@@ -104,9 +104,9 @@ export class CollectionsService {
     return this.prismaService.collection.delete({ where: { id } });
   }
 
-  async addView(collectionId: number) {
-    return this.prismaService.viewCollection.create({
-      data: { collectionId },
+  addView(collectionId: number) {
+    return this.prismaService.view.create({
+      data: { viewCollections: { create: { collectionId } } },
     });
   }
 
